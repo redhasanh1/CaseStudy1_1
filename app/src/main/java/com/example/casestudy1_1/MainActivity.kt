@@ -13,7 +13,9 @@ class MainActivity : AppCompatActivity() {
     private var lastNumeric: Boolean = false
     private var stateError: Boolean = false
     private var lastDot: Boolean = false
-    private var memory: Double = 0.0 // Memory variable
+
+    // Instance of CalculatorLogic
+    private val calculatorLogic = CalculatorLogic()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,16 +90,9 @@ class MainActivity : AppCompatActivity() {
     private fun onEqualButtonClick() {
         if (lastNumeric && !stateError) {
             val text = inputTextView.text.toString()
-            val expression = ExpressionBuilder(text).build()
-            try {
-                val result = expression.evaluate()
-                resultTextView.text = result.toString()
-                lastDot = result.toString().contains(".")
-            } catch (ex: Exception) {
-                resultTextView.text = "Error"
-                stateError = true
-                lastNumeric = false
-            }
+            val result = calculatorLogic.evaluateExpression(text)
+            resultTextView.text = result
+            lastDot = result.contains(".")
         }
     }
 
@@ -119,32 +114,32 @@ class MainActivity : AppCompatActivity() {
 
     private fun onPercentButtonClick() {
         if (lastNumeric && !stateError) {
-            val value = inputTextView.text.toString().toDouble() / 100
-            inputTextView.text = value.toString()
+            val value = inputTextView.text.toString()
+            inputTextView.text = calculatorLogic.calculatePercentage(value)
             lastNumeric = true
         }
     }
 
     private fun onMCButtonClick() {
-        memory = 0.0
+        calculatorLogic.memoryClear()
     }
 
     private fun onMRButtonClick() {
-        inputTextView.text = memory.toString()
+        inputTextView.text = calculatorLogic.memoryRecall()
         lastNumeric = true
     }
 
     private fun onMPlusButtonClick() {
         val currentNumber = inputTextView.text.toString()
         if (currentNumber.isNotEmpty() && lastNumeric) {
-            memory += currentNumber.toDouble()
+            calculatorLogic.memoryAdd(currentNumber)
         }
     }
 
     private fun onMMinusButtonClick() {
         val currentNumber = inputTextView.text.toString()
         if (currentNumber.isNotEmpty() && lastNumeric) {
-            memory -= currentNumber.toDouble()
+            calculatorLogic.memorySubtract(currentNumber)
         }
     }
 }
